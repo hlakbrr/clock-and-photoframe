@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
-const _flipFont = 'ArialRoundedMTBold';
+const _flipFont = 'ArialRoundedMT';
 const _flipDuration = Duration(milliseconds: 1000);
 
 class StandardFlipClockFace extends StatelessWidget {
@@ -83,6 +83,7 @@ class StandardFlipClockFace extends StatelessWidget {
                       snapshot.dateLabel,
                       style: TextStyle(
                         color: palette.digit.withValues(alpha: 0.55),
+                        fontFamily: _flipFont,
                         fontSize: dateSize,
                         fontWeight: FontWeight.w400,
                         letterSpacing: 1.5,
@@ -245,7 +246,7 @@ class _FlipCardState extends State<_FlipCard>
                                   color: widget.palette.digit,
                                   fontFamily: _flipFont,
                                   fontSize: widget.height * 0.12,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w400,
                                   height: 1,
                                   letterSpacing: 0.5,
                                 ),
@@ -330,7 +331,7 @@ class _FlipCardState extends State<_FlipCard>
                       color: widget.palette.digit,
                       fontFamily: _flipFont,
                       fontSize: widget.height * 0.82,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       height: 0.94,
                       letterSpacing: -widget.height * 0.012,
                     ),
