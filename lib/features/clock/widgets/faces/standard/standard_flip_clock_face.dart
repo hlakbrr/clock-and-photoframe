@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
-const _flipFont = 'ArialRoundedMTBold';
+const _flipFont = 'SFProRoundedBold';
 const _flipDuration = Duration(milliseconds: 1000);
 
 class StandardFlipClockFace extends StatelessWidget {
@@ -25,11 +25,11 @@ class StandardFlipClockFace extends StatelessWidget {
     // 参考样式：正方形卡片、小号粗体数字、日期行居中在上、秒卡悬挂分卡右下。
     final cardSize = landscape ? 260.0 : 210.0;
     final gap = cardSize * 0.07;
-    final dateSize = cardSize * 0.063;
-    final dateGap = cardSize * 0.10;
+    final dateSize = cardSize * 0.055;
+    final dateGap = cardSize * 0.08;
     final secSize = cardSize * 0.14;
     final secOverflow = cardSize * 0.05;
-    final dateColor = Color.lerp(palette.digit, Colors.white, 0.55)!;
+    final dateColor = Color.lerp(palette.digit, Colors.white, 0.75)!;
 
     final cards = <Widget>[
       _FlipCard(

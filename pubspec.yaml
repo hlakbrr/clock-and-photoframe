@@ -119,9 +119,9 @@ flutter:
       fonts:
         - asset: fonts/standard/RobotoCondensed-Bold.ttf
           weight: 700
-    - family: ArialRoundedMTBold
+    - family: SFProRoundedBold
       fonts:
-        - asset: fonts/standard/ArialRoundedMTBold.ttf
+        - asset: fonts/standard/SF-Pro-Rounded-Bold.otf
           weight: 700
     - family: DSEG7Classic
       fonts:
