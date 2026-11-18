@@ -1,0 +1,162 @@
+name: flutter_tiqlo_clock
+description: "A new Flutter project."
+publish_to: "none"
+version: 1.0.2+3
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8
+
+  # 图片资源生成
+  image: ^4.8.0
+  path: ^1.9.1
+
+  # 状态管理
+  flutter_riverpod: 3.3.2
+  riverpod_annotation: 4.0.3
+
+  # 路由
+  go_router: ^17.5.0
+
+  # 模型序列化
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+
+  # 本地存储
+  shared_preferences: ^2.5.5
+
+  # 日志
+  logger: ^2.7.0
+
+  # 日期格式
+  intl: ^0.20.2
+
+  # 本地消息
+  flutter_local_notifications: ^22.3.0
+
+  # 时区
+  timezone: ^0.11.1
+
+  # 屏幕常亮
+  wakelock_plus: ^1.7.0
+
+  # 屏幕亮度
+  screen_brightness: ^2.1.11
+
+  # 桌面端与 Web 全屏
+  flutter_fullscreen: ^1.2.0
+
+  # 外部链接
+  url_launcher: ^6.3.2
+
+  # 相框 WebView
+  webview_flutter: ^4.13.0
+
+  # NAS 探测
+  http: ^1.2.0
+
+  # 应用版本
+  package_info_plus: ^10.2.1
+
+  # 启动屏幕
+  flutter_native_splash: ^2.4.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Lint
+  flutter_lints: ^6.0.0
+  riverpod_lint: 3.1.4
+
+  # 代码生成
+  build_runner: ^2.15.1
+  riverpod_generator: 4.0.4
+  freezed: ^3.2.3
+  json_serializable: ^6.14.1
+
+  # 图标生成
+  icons_launcher: ^3.1.0
+
+  # 测试
+  shared_preferences_platform_interface: ^2.4.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/images/focus/
+  fonts:
+    - family: BubbleClock
+      fonts:
+        - asset: assets/fonts/bubble/Fredoka-Medium.ttf
+          weight: 500
+    - family: PixelifySans
+      fonts:
+        - asset: fonts/PixelifySans-Regular.ttf
+          weight: 400
+        - asset: fonts/PixelifySans-SemiBold.ttf
+          weight: 600
+    - family: Tiny5
+      fonts:
+        - asset: fonts/Tiny5-Regular.ttf
+          weight: 400
+    - family: Jersey25
+      fonts:
+        - asset: fonts/Jersey25-Regular.ttf
+          weight: 400
+    - family: DotGothic16
+      fonts:
+        - asset: fonts/DotGothic16-Regular.ttf
+          weight: 400
+    - family: FlipClock
+      fonts:
+        - asset: fonts/standard/RobotoCondensed-Bold.ttf
+          weight: 700
+    - family: DSEG7Classic
+      fonts:
+        - asset: fonts/standard/DSEG7Classic-Bold.ttf
+          weight: 700
+
+# 图标生成配置
+icons_launcher:
+  image_path: "assets/icons/ic_logo.png"
+  platforms:
+    ios:
+      enable: true
+    android:
+      enable: true
+      image_path: "assets/icons/android/icon.png"
+      notification_image: "assets/icons/android/notification.png"
+      adaptive_background_image: "assets/icons/android/adaptive_background.png"
+      adaptive_foreground_image: "assets/icons/android/adaptive_foreground.png"
+      adaptive_round_image: "assets/icons/android/adaptive_round.png"
+      adaptive_monochrome_image: "assets/icons/android/adaptive_monochrome.png"
+    web:
+      enable: true
+    macos:
+      enable: true
+    windows:
+      enable: true
+    linux:
+      enable: true
+
+# 启动屏幕配置
+flutter_native_splash:
+  color: "#000000"
+  image: assets/splash/tiqlo_splash.png
+  android: true
+  ios: true
+  web: false
+  android_gravity: center
+  ios_content_mode: center
+  android_12:
+    color: "#000000"
+    image: assets/splash/tiqlo_splash_android12.png
+    icon_background_color: "#000000"

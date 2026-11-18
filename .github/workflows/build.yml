@@ -12,29 +12,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install XcodeGen and ldid
-        run: brew install xcodegen ldid
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
 
-      - name: Generate Xcode project
-        run: xcodegen generate
+      - name: Flutter version
+        run: flutter --version
 
-      - name: Build (unsigned, device SDK)
-        run: |
-          xcodebuild \
-            -project ClockAndPhotoFrame.xcodeproj \
-            -scheme ClockAndPhotoFrame \
-            -sdk iphoneos \
-            -configuration Release \
-            -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Riverpod codegen
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build iOS (unsigned)
+        run: flutter build ios --release --no-codesign
 
       - name: Package IPA (ldid fake-sign)
         run: |
           mkdir -p Payload
-          cp -R "build/Build/Products/Release-iphoneos/ClockAndPhotoFrame.app" Payload/
-          ldid -S Payload/ClockAndPhotoFrame.app/ClockAndPhotoFrame
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          ldid -S Payload/Runner.app/Runner
+          if [ -d Payload/Runner.app/Frameworks ]; then
+            find Payload/Runner.app/Frameworks -maxdepth 1 -name "*.framework" | while read -r fw; do
+              ldid -S "$fw/$(basename "$fw" .framework)"
+            done
+          fi
           zip -qry ClockAndPhotoFrame.ipa Payload
 
       - name: Upload artifact

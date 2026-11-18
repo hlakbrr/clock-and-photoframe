@@ -1,30 +1,145 @@
-# Clock & PhotoFrame（时钟相框二合一）
+<h1 align="center">Tiqlo — Flutter Flip, Digital &amp; Bubble Clock</h1>
 
-给退役 iPhone 用的桌面时钟 + 数字相框混合 App。原生 Swift 无第三方依赖，部署目标 iOS 15.0。
+<p align="center">
+  An open-source clock app with Flip, Digital, and Bubble faces, a distinctive pixel interface, and built-in Focus and Timer modes for mobile, desktop, and Web.
+</p>
 
-## 工作逻辑
+<p align="center">
+  <a href="https://flutter.dev/"><img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&amp;logo=flutter&amp;logoColor=white" alt="Built with Flutter" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/ducafecat/flutter_tiqlo_clock?style=flat-square" alt="MIT License" /></a>
+  <a href="https://github.com/ducafecat/flutter_tiqlo_clock/stargazers"><img src="https://img.shields.io/github/stars/ducafecat/flutter_tiqlo_clock?style=flat-square&amp;logo=github" alt="GitHub stars" /></a>
+  <a href="https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763"><img src="https://img.shields.io/badge/App%20Store-Download-0D96F6?style=flat-square&amp;logo=apple&amp;logoColor=white" alt="Download on the App Store" /></a>
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-ED780C?style=flat-square" alt="Platforms: Android, iOS, Web, and desktop" />
+</p>
 
-- **时钟模式**：极简风格（纯黑背景、细体白色大数字、浅灰日期行），数字变化时自上翻转。视觉上是对 Zen Flip Clock 极简风格的干净重写（未使用其任何代码/素材）。
-- **相框模式**：全屏 WKWebView 加载 ImmichFrame 服务端网页（对应原 nasframe-ios 壳）。
-- **自动切换**（ProbeEngine）：在用户设置的探测时段内，每隔设定间隔（30秒/1分钟/2分钟/5分钟）HEAD 探测一次 ImmichFrame 服务器——在线切相框、离线切时钟；时段外始终显示时钟；时段支持跨午夜，可添加任意多个。
-- **屏幕常亮**：App 前台期间禁止自动锁屏（桌面设备专用）。
+<p align="center">
+  <a href="https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763">App Store</a> ·
+  <a href="https://tiqlo.link/#demo">Live Demo</a> ·
+  <a href="https://tiqlo.link/">Website</a> ·
+  <a href="README.md">English</a> ·
+  <a href="README.zh-CN.md">简体中文</a> ·
+  <a href="README.zh-TW.md">繁體中文</a>
+</p>
 
-## 设置项（下拉或双指长按进入）
+<p align="center">
+  <img src="docs/github/tiqlo-preview.png" alt="Tiqlo Pixel style (default): Flip Clock, Digital Clock, and Focus Timer" width="100%" />
+  <br />
+  Pixel style (default)
+</p>
 
-- 相框服务器地址 + 可选认证密钥（自动追加 `?authsecret=`）
-- 探测间隔：30秒 / 1分钟 / 2分钟 / 5分钟
-- 探测时段：列表编辑，新增/修改/删除，空列表 = 全天探测
-- 时钟外观：24小时制 / 显示秒 / 显示日期
+<p align="center">
+  <img src="docs/github/tiqlo-preview-android.png" alt="Tiqlo Standard style: Flip Clock, Digital Clock, and Focus Timer" width="100%" />
+  <br />
+  Standard style
+</p>
 
-## 深链（供看门狗/自动化调用）
+<p align="center">
+  <img src="docs/github/bubble-clock-preview.png" alt="Tiqlo Bubble clock face in landscape and portrait layouts with its color palette selector" width="100%" />
+  <br />
+  Bubble clock face
+</p>
 
-`clockframe://open` 或 `immichframe://open`（后者兼容旧 nasframe 看门狗）→ 立即探测并按需刷新相框页。
+---
 
-## 构建
+Tiqlo is an open-source Flutter clock app for mobile, desktop, and Web. Choose a Pixel or Standard interface, then switch between Flip, Digital, and Bubble clock faces. The Pixel style carries crisp pixel geometry across clocks, controls, and panels; the Bubble theme pairs oversized rounded digits with individually coloured numbers and ten palettes. Use it as a full-screen desk clock, or start a built-in Focus or Timer session when you need to concentrate. Its responsive layouts keep the time clear in portrait or landscape mode.
 
-同 nasframe-ios：推送后 GitHub Actions（macos-latest）自动 XcodeGen → xcodebuild 无签名构建 → ldid 假签 → 打包 IPA → artifact 下载。TrollStore 安装。
+## Try Tiqlo
 
-## 来源说明
+Tiqlo is now on the [App Store](https://apps.apple.com/us/app/tiqlo-pixel-flip-clock/id6804964763). You can also open the [live Web app](https://tiqlo.link/#demo) in your browser—no clone, account, or installation required. Tap the clock to reveal its controls.
 
-- 相框部分与 ImmichFrame 项目（GPL-3.0）服务端配套使用
-- 时钟视觉参考 Zen Flip Clock（App Store 闭源商业软件，bundle ID com.mad.FlipClock）的设计风格，本项目全部代码为独立实现
+## Clock Features
+
+- Three clock faces: Flip, Digital, and Bubble. Choose one from the Clock Style panel in either interface style.
+- Two interface styles: Pixel (default) and Standard.
+- Bubble's rounded display has individually coloured digits and ten selectable colour palettes.
+- The Pixel style carries its pixel aesthetic across clock faces, typography, controls, panels, and transitions.
+- Free, ad-free, and open source under the MIT License; no account required.
+- Flip and Digital clock faces, each with its own colour palettes.
+- Responsive portrait and landscape layouts; full-screen support on Web and desktop.
+- 12/24-hour time, leading zero, seconds, date, and weekday options.
+- Night Mode dims the display, temporarily hides the date and seconds, and changes Bubble to a deep red palette.
+- Focus and Timer sessions with pause, resume, stop, and completion alerts.
+- Completed Focus sessions contribute to today's count and minutes.
+- Configurable keep-awake, sound, and vibration preferences.
+- Settings persist locally across launches.
+
+## Pixel Style Is More Than a Font
+
+- Four purpose-built pixel fonts give Flip digits, Digital digits, interface copy, and compact HUD labels their own visual character.
+- Grid-aligned spacing, staircase-cut corners, crisp outlines, and zero-blur hard shadows carry the pixel language through every component—not just the clock face.
+- A restrained dark palette and high-contrast clock faces keep time readable from across a room.
+- Dynamic Flutter widgets preserve responsive layouts, accessible touch targets, keyboard focus states, and smooth Flip transitions without rasterising the interface.
+
+## Bubble Clock Theme
+
+- Oversized Fredoka digits and a circular two-dot colon give Bubble its soft, colourful clock face.
+- Ten palettes colour the hour and minute digits individually, with the selected palette saved locally.
+- Portrait and landscape layouts adapt the clock face to the screen; changing digits animate smoothly.
+
+## Run the Flutter Clock App
+
+Flutter SDK is required. The project's Dart SDK constraint is `^3.12.2`.
+
+```bash
+flutter pub get
+flutter run -d chrome
+```
+
+Run tests:
+
+```bash
+flutter test
+```
+
+Build a production Web bundle:
+
+```bash
+flutter build web --release
+```
+
+Deploy the entire generated `build/web/` directory to a static server. When serving the app from a subpath, provide the matching `--base-href` while building.
+
+---
+
+## Flutter Packages
+
+- State and navigation: `flutter_riverpod`, `riverpod_annotation`, `go_router`
+- Models and local data: `freezed_annotation`, `json_annotation`, `shared_preferences`, `intl`, `logger`
+- Alerts and device features: `flutter_local_notifications`, `timezone`, `wakelock_plus`, `screen_brightness`, `flutter_fullscreen`
+- UI, assets, and links: `cupertino_icons`, `image`, `path`, `url_launcher`, `flutter_native_splash`
+- Development and testing: `flutter_test`, `build_runner`, `riverpod_generator`, `freezed`, `json_serializable`, `flutter_lints`, `riverpod_lint`, `icons_launcher`, `shared_preferences_platform_interface`
+
+See [`pubspec.yaml`](pubspec.yaml) for current versions and complete configuration.
+
+## Pixel and Bubble Fonts Used by Tiqlo
+
+| Font | Flutter family | Weight / file | Usage |
+| --- | --- | --- | --- |
+| Pixelify Sans | `PixelifySans` | 400 `PixelifySans-Regular.ttf`<br>600 `PixelifySans-SemiBold.ttf` | Interface headings, buttons, settings, and short copy |
+| Tiny5 | `Tiny5` | 400 `Tiny5-Regular.ttf` | Compact HUD labels such as AM/PM, FOCUS, TIMER, and PAUSED |
+| Jersey 25 | `Jersey25` | 400 `Jersey25-Regular.ttf` | Flip clock digits |
+| DotGothic16 | `DotGothic16` | 400 `DotGothic16-Regular.ttf` | Digital clock digits |
+| Fredoka | `BubbleClock` | 500 `Fredoka-Medium.ttf` | Bubble clock digits |
+
+The listed fonts use the SIL Open Font License 1.1. Pixel font sources, fixed checksums, and license files are recorded in [`fonts/licenses`](fonts/licenses/SOURCES.md); Fredoka's license is included at [`assets/fonts/bubble/OFL.txt`](assets/fonts/bubble/OFL.txt).
+
+## Development Skills
+
+This project uses development skills from:
+
+- [mattpocock/skills](https://github.com/mattpocock/skills)
+- [ducafecat/skills](https://github.com/ducafecat/skills)
+
+## Principles
+
+- Clock always represents wall-clock time; Focus and Timer temporarily replace the display only while active.
+- Sessions use monotonic time, so device clock changes do not affect countdowns.
+- Portrait and landscape are layouts of one Clock, not separate pages.
+
+See [docs/adr](docs/adr) for design decisions.
+
+---
+
+## License
+
+Licensed under the [MIT License](LICENSE).
