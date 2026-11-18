@@ -16,9 +16,9 @@ The bundled `RobotoCondensed-Bold.ttf` declares the Apache License, Version
 2.0 in its embedded metadata. License text:
 https://www.apache.org/licenses/LICENSE-2.0.
 
-## SF Pro Rounded Bold
+## SF Pro Rounded Semibold
 
-`SF-Pro-Rounded-Bold.otf` © Apple Inc., obtained from Apple's public
+`SF-Pro-Rounded-Semibold.otf` © Apple Inc., obtained from Apple's public
 developer font portal (developer.apple.com/fonts) via the mirror
 https://github.com/annas-yu/San-Francisco-Pro-Fonts. Bundled for
 personal local use on a single Apple device only — redistribution

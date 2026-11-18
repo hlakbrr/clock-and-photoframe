@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
-const _flipFont = 'SFProRoundedBold';
+const _flipFont = 'SFProRoundedSemibold';
 const _flipDuration = Duration(milliseconds: 1000);
 
 class StandardFlipClockFace extends StatelessWidget {
@@ -27,8 +27,8 @@ class StandardFlipClockFace extends StatelessWidget {
     final gap = cardSize * 0.07;
     final dateSize = cardSize * 0.055;
     final dateGap = cardSize * 0.08;
-    final secSize = cardSize * 0.14;
-    final secOverflow = cardSize * 0.05;
+    final secSize = cardSize * 0.16;
+    final secOverflow = cardSize * 0.055;
     final dateColor = Color.lerp(palette.digit, Colors.white, 0.75)!;
 
     final cards = <Widget>[
@@ -86,7 +86,7 @@ class StandardFlipClockFace extends StatelessWidget {
                         color: dateColor,
                         fontFamily: _flipFont,
                         fontSize: dateSize,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         height: 1,
                         letterSpacing: 1.0,
                       ),
@@ -246,7 +246,7 @@ class _FlipCardState extends State<_FlipCard>
                                 color: widget.palette.digit,
                                 fontFamily: _flipFont,
                                 fontSize: height * 0.12,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 height: 1,
                                 letterSpacing: 0.5,
                               ),
@@ -330,7 +330,7 @@ class _FlipCardState extends State<_FlipCard>
                       color: widget.palette.digit,
                       fontFamily: _flipFont,
                       fontSize: widget.size * 0.71,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       height: 0.94,
                       letterSpacing: -widget.size * 0.012,
                     ),
