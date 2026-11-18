@@ -15,3 +15,13 @@ Copyright 2011 Google Inc. All Rights Reserved.
 The bundled `RobotoCondensed-Bold.ttf` declares the Apache License, Version
 2.0 in its embedded metadata. License text:
 https://www.apache.org/licenses/LICENSE-2.0.
+
+## Arial Rounded MT Bold
+
+`ArialRoundedMTBold.ttf` is a Monotype commercial typeface
+("Arial ® Trademark of Monotype Typography ltd"). Bundled here for
+personal local use on a single jailbroken device only — not for
+redistribution or commercial use. File obtained from:
+https://github.com/Kyles-World/Arial-Rounded-MT
+(Arial Rounded MT Bold, v1.51, PostScript name ArialRoundedMTBold).
+

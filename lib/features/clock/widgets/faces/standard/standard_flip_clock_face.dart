@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
-const _flipFont = 'FlipClock';
+const _flipFont = 'ArialRoundedMTBold';
 const _flipDuration = Duration(milliseconds: 1000);
 
 class StandardFlipClockFace extends StatelessWidget {

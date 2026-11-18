@@ -5,7 +5,7 @@ import '../../../clock/clock_providers.dart' show sharedPreferencesProvider;
 import '../kiosk_controller.dart';
 import '../kiosk_models.dart';
 import '../kiosk_store.dart';
-import 'session_editor_page.dart';
+import 'window_editor_page.dart';
 
 /// 日程与自动切换设置页（独立浅色主题，保证可读性）。
 class KioskSettingsPage extends ConsumerStatefulWidget {
@@ -43,24 +43,23 @@ class _KioskSettingsPageState extends ConsumerState<KioskSettingsPage> {
     Navigator.of(context).pop();
   }
 
-  Future<void> _editSession({required bool weekend, int? index}) async {
-    final initial =
-        index == null ? null : (weekend ? _schedule.weekend : _schedule.weekday).sessions[index];
-    final result = await Navigator.of(context).push<SessionEditorResult>(
+  Future<void> _editWindow({required bool weekend, int? index}) async {
+    final day = weekend ? _schedule.weekend : _schedule.weekday;
+    final initial = index == null ? null : day.windows[index];
+    final result = await Navigator.of(context).push<WindowEditorResult>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => SessionEditorPage(initial: initial),
+        builder: (_) => WindowEditorPage(initial: initial),
       ),
     );
     if (result == null) return;
     setState(() {
-      final day = weekend ? _schedule.weekend : _schedule.weekday;
       if (result.deleted) {
-        day.sessions.removeAt(index!);
+        day.windows.removeAt(index!);
       } else if (index == null) {
-        day.sessions.add(result.session);
+        day.windows.add(result.window);
       } else {
-        day.sessions[index] = result.session;
+        day.windows[index] = result.window;
       }
     });
   }
@@ -124,7 +123,7 @@ class _KioskSettingsPageState extends ConsumerState<KioskSettingsPage> {
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  '仅在探测窗口内按此间隔探测 NAS；在线切相框、离线回时钟。',
+                  '仅在相框展示时间内按此间隔探测 NAS；在线切相框、离线回时钟。',
                   style: TextStyle(fontSize: 12, color: Colors.black54),
                 ),
               ],
@@ -141,10 +140,9 @@ class _KioskSettingsPageState extends ConsumerState<KioskSettingsPage> {
               title: '说明',
               children: [
                 const Text(
-                  '· 会话 = App 保持前台显示时钟（或相框）的时间段，结束自动返回桌面。\n'
-                  '· 探测窗口嵌套在会话之内，窗口内在线自动切相框。\n'
-                  '· 结束时间小于开始时间视为跨午夜（如 18:00 ~ 01:00）。\n'
-                  '· 会话开始时的解锁拉起由手机上的看门狗脚本负责。\n'
+                  '· 相框展示时间：此时间段内自动探测 NAS，在线切相框、离线回时钟；时间段外恒为时钟。\n'
+                  '· App 的打开和关闭由手机端 Activator / 看门狗负责，本页不设会话时间。\n'
+                  '· 结束时间小于开始时间视为跨午夜（如 18:00 ~ 次日 01:00）。\n'
                   '· 保存后立即生效。',
                   style: TextStyle(fontSize: 12, color: Colors.black54, height: 1.6),
                 ),
@@ -181,11 +179,8 @@ class _KioskSettingsPageState extends ConsumerState<KioskSettingsPage> {
   Widget _scheduleCard({required String title, required bool weekend}) {
     final day = weekend ? _schedule.weekend : _schedule.weekday;
     final rows = <Widget>[];
-    for (var i = 0; i < day.sessions.length; i++) {
-      final s = day.sessions[i];
-      final windowsText = s.probeWindows.isEmpty
-          ? '（无探测窗口，全程显示时钟）'
-          : s.probeWindows.map((w) => '探测 $w').join('、');
+    for (var i = 0; i < day.windows.length; i++) {
+      final w = day.windows[i];
       rows.add(Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(10),
@@ -199,24 +194,23 @@ class _KioskSettingsPageState extends ConsumerState<KioskSettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${s.start} ~ ${s.end}',
+                  Text('${w.start} ~ ${w.end}',
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
-                  Text(windowsText,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.black54)),
+                  const Text('相框展示时间',
+                      style: TextStyle(fontSize: 12, color: Colors.black54)),
                 ],
               ),
             ),
             IconButton(
               icon: const Icon(Icons.edit_outlined, size: 20),
-              onPressed: () => _editSession(weekend: weekend, index: i),
+              onPressed: () => _editWindow(weekend: weekend, index: i),
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline,
                   size: 20, color: Colors.redAccent),
-              onPressed: () => setState(() => day.sessions.removeAt(i)),
+              onPressed: () => setState(() => day.windows.removeAt(i)),
             ),
           ],
         ),
@@ -224,8 +218,8 @@ class _KioskSettingsPageState extends ConsumerState<KioskSettingsPage> {
     }
     rows.add(OutlinedButton.icon(
       icon: const Icon(Icons.add, size: 18),
-      label: const Text('添加会话'),
-      onPressed: () => _editSession(weekend: weekend),
+      label: const Text('添加展示时间'),
+      onPressed: () => _editWindow(weekend: weekend),
     ));
     return _card(title: title, children: rows);
   }
