@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../clock/clock_providers.dart' show sharedPreferencesProvider;
-import '../kiosk_store.dart';
+import 'kiosk_store.dart';
 
 /// 相框模式：全屏 WebView 加载 ImmichFrame 服务端网页。
 /// 右上角提供半透明设置入口（点按进入日程设置页）。

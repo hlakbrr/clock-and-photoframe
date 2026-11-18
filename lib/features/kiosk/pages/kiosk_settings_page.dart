@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../clock/clock_providers.dart' show sharedPreferencesProvider;
 import '../kiosk_controller.dart';
 import '../kiosk_models.dart';
 import '../kiosk_store.dart';
