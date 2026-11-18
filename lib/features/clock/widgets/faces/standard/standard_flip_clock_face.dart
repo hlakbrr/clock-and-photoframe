@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
-const _flipFont = 'ArialRoundedMT';
+const _flipFont = 'ArialRoundedMTBold';
 const _flipDuration = Duration(milliseconds: 1000);
 
 class StandardFlipClockFace extends StatelessWidget {
@@ -22,32 +22,47 @@ class StandardFlipClockFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardHeight = landscape ? 260.0 : 210.0;
-    final cardWidth = cardHeight * 1.08;
-    final gap = cardHeight * 0.09;
-    final period = snapshot.period;
-    final dateSize = landscape ? 22.0 : 16.0;
-    final cards = [
+    // 参考样式：正方形卡片、小号粗体数字、日期行居中在上、秒卡悬挂分卡右下。
+    final cardSize = landscape ? 260.0 : 210.0;
+    final gap = cardSize * 0.07;
+    final dateSize = cardSize * 0.063;
+    final dateGap = cardSize * 0.10;
+    final secSize = cardSize * 0.14;
+    final secOverflow = cardSize * 0.05;
+    final dateColor = Color.lerp(palette.digit, Colors.white, 0.55)!;
+
+    final cards = <Widget>[
       _FlipCard(
         value: snapshot.displayHour,
-        width: cardWidth,
-        height: cardHeight,
+        size: cardSize,
         palette: palette,
-        badge: period,
+        badge: snapshot.period,
       ),
-      _FlipCard(
-        value: snapshot.displayMinute,
-        width: cardWidth,
-        height: cardHeight,
-        palette: palette,
+      SizedBox(
+        width: landscape ? gap : 0,
+        height: landscape ? 0 : gap,
       ),
-      if (snapshot.showSeconds)
-        _FlipCard(
-          value: snapshot.displaySecond,
-          width: cardWidth,
-          height: cardHeight,
-          palette: palette,
-        ),
+      // 分卡 + 悬挂在右下角外侧的秒卡（同素材缩小版，翻页动画一致）。
+      Stack(
+        clipBehavior: Clip.none,
+        children: [
+          _FlipCard(
+            value: snapshot.displayMinute,
+            size: cardSize,
+            palette: palette,
+          ),
+          if (snapshot.showSeconds)
+            Positioned(
+              right: -secOverflow,
+              bottom: -secOverflow,
+              child: _FlipCard(
+                value: snapshot.displaySecond,
+                size: secSize,
+                palette: palette,
+              ),
+            ),
+        ],
+      ),
     ];
 
     return Semantics(
@@ -61,35 +76,29 @@ class StandardFlipClockFace extends StatelessWidget {
               fit: BoxFit.contain,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  if (snapshot.showDate) ...[
+                    Text(
+                      snapshot.dateLabel,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: dateColor,
+                        fontFamily: _flipFont,
+                        fontSize: dateSize,
+                        fontWeight: FontWeight.w700,
+                        height: 1,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    SizedBox(height: dateGap),
+                  ],
                   Flex(
                     direction: landscape ? Axis.horizontal : Axis.vertical,
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var index = 0; index < cards.length; index++) ...[
-                        if (index > 0)
-                          SizedBox(
-                            width: landscape ? gap : 0,
-                            height: landscape ? 0 : gap,
-                          ),
-                        cards[index],
-                      ],
-                    ],
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: cards,
                   ),
-                  if (snapshot.showDate) ...[
-                    const SizedBox(height: 20),
-                    Text(
-                      snapshot.dateLabel,
-                      style: TextStyle(
-                        color: palette.digit.withValues(alpha: 0.55),
-                        fontFamily: _flipFont,
-                        fontSize: dateSize,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -103,15 +112,13 @@ class StandardFlipClockFace extends StatelessWidget {
 class _FlipCard extends StatefulWidget {
   const _FlipCard({
     required this.value,
-    required this.width,
-    required this.height,
+    required this.size,
     required this.palette,
     this.badge,
   });
 
   final String value;
-  final double width;
-  final double height;
+  final double size;
   final FlipPalette palette;
   final String? badge;
 
@@ -171,10 +178,12 @@ class _FlipCardState extends State<_FlipCard>
         final topPhase = eased < 0.5;
         final topAngle = math.min(eased * math.pi, math.pi / 2);
         final bottomAngle = math.max(eased * math.pi - math.pi, -math.pi / 2);
-        final radius = BorderRadius.circular(widget.width * 0.085);
+        final radius = BorderRadius.circular(widget.size * 0.06);
+        final width = widget.size;
+        final height = widget.size;
         return SizedBox(
-          width: widget.width,
-          height: widget.height,
+          width: width,
+          height: height,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -185,76 +194,66 @@ class _FlipCardState extends State<_FlipCard>
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.18),
-                        blurRadius: widget.height * 0.045,
-                        spreadRadius: -widget.height * 0.025,
-                        offset: Offset(0, widget.height * 0.015),
+                        blurRadius: height * 0.045,
+                        spreadRadius: -height * 0.025,
+                        offset: Offset(0, height * 0.015),
                       ),
                     ],
                   ),
-                  child: DecoratedBox(
-                    position: DecorationPosition.foreground,
-                    decoration: BoxDecoration(
-                      borderRadius: radius,
-                      border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.55),
-                        width: 0.8,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: radius,
-                      child: Stack(
-                        key: const ValueKey('flip-card-stack'),
-                        clipBehavior: Clip.hardEdge,
-                        children: [
-                          Column(
-                            children: [
-                              _half(_current, top: true),
-                              _half(
-                                flipping ? _previous : _current,
-                                top: false,
-                              ),
-                            ],
+                  child: ClipRRect(
+                    borderRadius: radius,
+                    child: Stack(
+                      key: const ValueKey('flip-card-stack'),
+                      clipBehavior: Clip.hardEdge,
+                      children: [
+                        Column(
+                          children: [
+                            _half(_current, top: true),
+                            _half(
+                              flipping ? _previous : _current,
+                              top: false,
+                            ),
+                          ],
+                        ),
+                        if (flipping && topPhase)
+                          Align(
+                            key: const ValueKey('flip-flap'),
+                            alignment: Alignment.topCenter,
+                            child: _flap(
+                              value: _previous,
+                              top: true,
+                              angle: topAngle,
+                            ),
                           ),
-                          if (flipping && topPhase)
-                            Align(
-                              key: const ValueKey('flip-flap'),
-                              alignment: Alignment.topCenter,
-                              child: _flap(
-                                value: _previous,
-                                top: true,
-                                angle: topAngle,
+                        if (flipping && !topPhase)
+                          Align(
+                            key: const ValueKey('flip-flap'),
+                            alignment: Alignment.bottomCenter,
+                            child: _flap(
+                              value: _current,
+                              top: false,
+                              angle: bottomAngle,
+                            ),
+                          ),
+                        if (widget.badge != null)
+                          Positioned(
+                            left: width * 0.09,
+                            top: height * 0.075,
+                            child: Text(
+                              widget.badge!,
+                              key: const ValueKey('flip-period'),
+                              style: TextStyle(
+                                color: widget.palette.digit,
+                                fontFamily: _flipFont,
+                                fontSize: height * 0.12,
+                                fontWeight: FontWeight.w700,
+                                height: 1,
+                                letterSpacing: 0.5,
                               ),
                             ),
-                          if (flipping && !topPhase)
-                            Align(
-                              key: const ValueKey('flip-flap'),
-                              alignment: Alignment.bottomCenter,
-                              child: _flap(
-                                value: _current,
-                                top: false,
-                                angle: bottomAngle,
-                              ),
-                            ),
-                          if (widget.badge != null)
-                            Positioned(
-                              left: widget.width * 0.09,
-                              top: widget.height * 0.075,
-                              child: Text(
-                                widget.badge!,
-                                key: const ValueKey('flip-period'),
-                                style: TextStyle(
-                                  color: widget.palette.digit,
-                                  fontFamily: _flipFont,
-                                  fontSize: widget.height * 0.12,
-                                  fontWeight: FontWeight.w400,
-                                  height: 1,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          Center(child: _divider()),
-                        ],
-                      ),
+                          ),
+                        Center(child: _divider()),
+                      ],
                     ),
                   ),
                 ),
@@ -269,15 +268,15 @@ class _FlipCardState extends State<_FlipCard>
   Widget _divider() {
     return Container(
       key: const ValueKey('flip-divider'),
-      width: widget.width,
-      height: math.max(1.5, widget.height * 0.008),
+      width: widget.size,
+      height: math.max(1.5, widget.size * 0.008),
       decoration: BoxDecoration(
         color: widget.palette.divider,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: widget.height * 0.0015,
-            offset: Offset(0, widget.height * 0.0005),
+            blurRadius: widget.size * 0.0015,
+            offset: Offset(0, widget.size * 0.0005),
           ),
         ],
       ),
@@ -300,11 +299,11 @@ class _FlipCardState extends State<_FlipCard>
   }
 
   Widget _half(String value, {required bool top}) {
-    final radius = Radius.circular(widget.width * 0.085);
+    final radius = Radius.circular(widget.size * 0.06);
     return Container(
       key: ValueKey(top ? 'flip-card-top' : 'flip-card-bottom'),
-      width: widget.width,
-      height: widget.height / 2,
+      width: widget.size,
+      height: widget.size / 2,
       decoration: BoxDecoration(
         color: top ? widget.palette.cardTop : widget.palette.cardBottom,
         borderRadius: top
@@ -319,21 +318,21 @@ class _FlipCardState extends State<_FlipCard>
           fit: StackFit.expand,
           children: [
             OverflowBox(
-              maxHeight: widget.height,
+              maxHeight: widget.size,
               alignment: top ? Alignment.topCenter : Alignment.bottomCenter,
               child: SizedBox(
-                width: widget.width,
-                height: widget.height,
+                width: widget.size,
+                height: widget.size,
                 child: Center(
                   child: Text(
                     value,
                     style: TextStyle(
                       color: widget.palette.digit,
                       fontFamily: _flipFont,
-                      fontSize: widget.height * 0.82,
-                      fontWeight: FontWeight.w400,
+                      fontSize: widget.size * 0.71,
+                      fontWeight: FontWeight.w700,
                       height: 0.94,
-                      letterSpacing: -widget.height * 0.012,
+                      letterSpacing: -widget.size * 0.012,
                     ),
                   ),
                 ),

@@ -48,7 +48,7 @@ extension FlipPaletteIdX on FlipPaletteId {
       background: Color(0xFF000000),
       cardTop: Color(0xFF181818),
       cardBottom: Color(0xFF151515),
-      digit: Color(0xFFF5F5F5),
+      digit: Color(0xFFB9B9BD),
       divider: Color(0xFF000000),
     ),
     FlipPaletteId.dark => const FlipPalette(

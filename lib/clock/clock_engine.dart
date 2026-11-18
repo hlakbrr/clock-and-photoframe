@@ -421,7 +421,9 @@ class ClockEngine {
     final language = locale.languageCode;
     final weekday = DateFormat('EEE', language).format(now).toUpperCase();
     if (language == 'zh') {
-      return '$weekday · ${DateFormat('M月d日', language).format(now)}';
+      // 参考样式：2026 / 11 / 19 星期四
+      return '${DateFormat('yyyy / MM / dd', language).format(now)} '
+          '${DateFormat('EEEE', language).format(now)}';
     }
     final monthDay = DateFormat('MMM d', language).format(now).toUpperCase();
     return '$weekday · $monthDay';
