@@ -1,0 +1,45 @@
+name: Build unsigned IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen and ldid
+        run: brew install xcodegen ldid
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build (unsigned, device SDK)
+        run: |
+          xcodebuild \
+            -project ClockAndPhotoFrame.xcodeproj \
+            -scheme ClockAndPhotoFrame \
+            -sdk iphoneos \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package IPA (ldid fake-sign)
+        run: |
+          mkdir -p Payload
+          cp -R "build/Build/Products/Release-iphoneos/ClockAndPhotoFrame.app" Payload/
+          ldid -S Payload/ClockAndPhotoFrame.app/ClockAndPhotoFrame
+          zip -qry ClockAndPhotoFrame.ipa Payload
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClockPhotoFrame-ipa
+          path: ClockAndPhotoFrame.ipa
+          retention-days: 30
