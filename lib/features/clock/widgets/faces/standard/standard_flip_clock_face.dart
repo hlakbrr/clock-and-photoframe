@@ -201,8 +201,8 @@ class _FlipCardState extends State<_FlipCard>
 
         // Zen 式时序（录屏实测）：
         // 0~0.5 旧上半 0→180°（easeOutQuad；90° 后露出纯色背面，投影可伸出卡框）；
-        // 0.5~0.85 旧下半 0→120°（翻过 90° 背面垂挂）；
-        // 0.85~1.0 垂挂背面淡出。
+        // 0.5~0.85 旧下半 0→100°（刚过垂直、垂页薄条）；
+        // 0.75~1.0 垂页淡出（短命，避免遮挡新数字）。
         Widget? topFlap;
         Widget? bottomFlap;
         double hingeShadow = 0;
@@ -219,9 +219,8 @@ class _FlipCardState extends State<_FlipCard>
             final easedP = p < 0.5
                 ? 2 * p * p
                 : 1 - 2 * (1 - p) * (1 - p); // easeInOutQuad
-            final a = easedP * (120 * math.pi / 180);
-            final opacity =
-                p > 0.85 ? 1 - (p - 0.85) / 0.15 : 1.0;
+            final a = easedP * (100 * math.pi / 180);
+            final opacity = p > 0.75 ? 1 - (p - 0.75) / 0.25 : 1.0;
             bottomFlap = Opacity(
               opacity: opacity.clamp(0.0, 1.0),
               child: _flap(value: _previous, top: false, angle: a),
@@ -364,7 +363,7 @@ class _FlipCardState extends State<_FlipCard>
       alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
       filterQuality: FilterQuality.medium,
       transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.008)
+        ..setEntry(3, 2, 0.0045)
         ..rotateX(top ? angle : -angle),
       child: content,
     );
