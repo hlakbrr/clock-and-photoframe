@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
-const _flipFont = 'SFProRoundedSemibold';
+const _flipFont = 'MPLUSRounded1c';
 const _flipDuration = Duration(milliseconds: 1000);
 
 class StandardFlipClockFace extends StatelessWidget {
@@ -22,88 +22,91 @@ class StandardFlipClockFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 参考样式：正方形卡片、小号粗体数字、日期行居中在上、秒卡悬挂分卡右下。
-    final cardSize = landscape ? 260.0 : 210.0;
-    final gap = cardSize * 0.07;
-    final dateSize = cardSize * 0.055;
-    final dateGap = cardSize * 0.08;
-    final secSize = cardSize * 0.17;
-    final secOverflow = cardSize * 0.06;
-    // 日期与数字同色（参考图如此）。
-    final dateColor = palette.digit;
-
-    final cards = <Widget>[
-      _FlipCard(
-        value: snapshot.displayHour,
-        size: cardSize,
-        palette: palette,
-        badge: snapshot.period,
-      ),
-      SizedBox(
-        width: landscape ? gap : 0,
-        height: landscape ? 0 : gap,
-      ),
-      // 分卡 + 悬挂在右下角外侧的秒卡（同素材缩小版，翻页动画一致）。
-      Stack(
-        clipBehavior: Clip.none,
-        children: [
-          _FlipCard(
-            value: snapshot.displayMinute,
-            size: cardSize,
-            palette: palette,
-          ),
-          if (snapshot.showSeconds)
-            Positioned(
-              right: -secOverflow,
-              bottom: -secOverflow,
-              child: _FlipCard(
-                value: snapshot.displaySecond,
-                size: secSize,
-                palette: palette,
-              ),
-            ),
-        ],
-      ),
-    ];
-
+    // 参考图比例（1105x616 实测）：
+    // 卡片 37.4% 屏宽 / 67.2% 屏高（正方形）；卡片组屏幕正中；
+    // 日期独立放顶部（中心距屏顶 8%），字号 6.8% 卡宽，比数字粗一档。
     return Semantics(
       container: true,
       label: snapshot.timeLabel,
       child: ExcludeSemantics(
-        child: Padding(
-          // 加大留白：整体元素占屏比例比 Tiqlo 原版小（参考图观感）。
-          padding: const EdgeInsets.symmetric(horizontal: 88, vertical: 32),
-          child: SizedBox.expand(
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
+        child: SizedBox.expand(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final w = constraints.maxWidth;
+              final h = constraints.maxHeight;
+              final cardSize = math.min(w * 0.374, h * 0.672).toDouble();
+              final gap = cardSize * 0.07;
+              final dateSize = cardSize * 0.068;
+              final secSize = cardSize * 0.14;
+              final secOverflow = cardSize * 0.05;
+              final dateColor = palette.digit;
+
+              final cards = <Widget>[
+                _FlipCard(
+                  value: snapshot.displayHour,
+                  size: cardSize,
+                  palette: palette,
+                  badge: snapshot.period,
+                ),
+                SizedBox(
+                  width: landscape ? gap : 0,
+                  height: landscape ? 0 : gap,
+                ),
+                // 分卡 + 悬挂在右下角外侧的秒卡（同素材缩小版，翻页动画一致）。
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    _FlipCard(
+                      value: snapshot.displayMinute,
+                      size: cardSize,
+                      palette: palette,
+                    ),
+                    if (snapshot.showSeconds)
+                      Positioned(
+                        right: -secOverflow,
+                        bottom: -secOverflow,
+                        child: _FlipCard(
+                          value: snapshot.displaySecond,
+                          size: secSize,
+                          palette: palette,
+                        ),
+                      ),
+                  ],
+                ),
+              ];
+
+              return Stack(
                 children: [
-                  if (snapshot.showDate) ...[
-                    Text(
+                  // 卡片组：屏幕正中（上下左右对称留白）。
+                  Center(
+                    child: Flex(
+                      direction: landscape ? Axis.horizontal : Axis.vertical,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: cards,
+                    ),
+                  ),
+                  // 日期：独立定位顶部，中心距屏顶 8% 屏高。
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: h * 0.08 - dateSize / 2,
+                    child: Text(
                       snapshot.dateLabel,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: dateColor,
                         fontFamily: _flipFont,
                         fontSize: dateSize,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w800,
                         height: 1,
                         letterSpacing: 1.0,
                       ),
                     ),
-                    SizedBox(height: dateGap),
-                  ],
-                  Flex(
-                    direction: landscape ? Axis.horizontal : Axis.vertical,
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: cards,
                   ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -248,7 +251,7 @@ class _FlipCardState extends State<_FlipCard>
                                 color: widget.palette.digit,
                                 fontFamily: _flipFont,
                                 fontSize: height * 0.12,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 height: 1,
                                 letterSpacing: 0.5,
                               ),
@@ -326,20 +329,15 @@ class _FlipCardState extends State<_FlipCard>
                 width: widget.size,
                 height: widget.size,
                 child: Center(
-                  // 横向轻压：字形更窄高，接近 Arial Rounded 的比例。
-                  child: Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.diagonal3Values(0.93, 1.0, 1.0),
-                    child: Text(
-                      value,
-                      style: TextStyle(
-                        color: widget.palette.digit,
-                        fontFamily: _flipFont,
-                        fontSize: widget.size * 0.71,
-                        fontWeight: FontWeight.w600,
-                        height: 0.94,
-                        letterSpacing: -widget.size * 0.012,
-                      ),
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      color: widget.palette.digit,
+                      fontFamily: _flipFont,
+                      fontSize: widget.size * 0.70,
+                      fontWeight: FontWeight.w700,
+                      height: 0.94,
+                      letterSpacing: -widget.size * 0.012,
                     ),
                   ),
                 ),
