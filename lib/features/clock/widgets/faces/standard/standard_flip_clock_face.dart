@@ -22,9 +22,10 @@ class StandardFlipClockFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 参考图比例（1105x616 实测）：
-    // 卡片 37.4% 屏宽 / 67.2% 屏高（正方形）；卡片组屏幕正中；
-    // 日期独立放顶部（中心距屏顶 8%），字号 6.8% 卡宽，比数字粗一档。
+    // 参考图精确比例（2208x1242 实测取色取距）：
+    // 卡 38.4% 屏宽 / 67.3% 屏高（正方形）；间隙 4.4% 卡宽；
+    // 秒卡 25.9% 卡宽，右探出 10%、底探出 8%；圆角 6%；
+    // 数字字号 70% 卡高；日期字号 5% 卡宽，中心距屏顶 7.6%，与数字同色 #B0B0B0。
     return Semantics(
       container: true,
       label: snapshot.timeLabel,
@@ -34,11 +35,12 @@ class StandardFlipClockFace extends StatelessWidget {
             builder: (context, constraints) {
               final w = constraints.maxWidth;
               final h = constraints.maxHeight;
-              final cardSize = math.min(w * 0.374, h * 0.672).toDouble();
-              final gap = cardSize * 0.07;
-              final dateSize = cardSize * 0.068;
-              final secSize = cardSize * 0.14;
-              final secOverflow = cardSize * 0.05;
+              final cardSize = math.min(w * 0.384, h * 0.673).toDouble();
+              final gap = cardSize * 0.044;
+              final dateSize = cardSize * 0.050;
+              final secSize = cardSize * 0.259;
+              final secOverflowX = cardSize * 0.10;
+              final secOverflowY = cardSize * 0.08;
               final dateColor = palette.digit;
 
               final cards = <Widget>[
@@ -63,8 +65,8 @@ class StandardFlipClockFace extends StatelessWidget {
                     ),
                     if (snapshot.showSeconds)
                       Positioned(
-                        right: -secOverflow,
-                        bottom: -secOverflow,
+                        right: -secOverflowX,
+                        bottom: -secOverflowY,
                         child: _FlipCard(
                           value: snapshot.displaySecond,
                           size: secSize,
@@ -86,11 +88,11 @@ class StandardFlipClockFace extends StatelessWidget {
                       children: cards,
                     ),
                   ),
-                  // 日期：独立定位顶部，中心距屏顶 8% 屏高。
+                  // 日期：独立定位顶部，中心距屏顶 7.6% 屏高。
                   Positioned(
                     left: 0,
                     right: 0,
-                    top: h * 0.08 - dateSize / 2,
+                    top: h * 0.076 - dateSize / 2,
                     child: Text(
                       snapshot.dateLabel,
                       textAlign: TextAlign.center,

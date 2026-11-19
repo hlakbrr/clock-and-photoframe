@@ -147,6 +147,9 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       ClockThemeId.bubble => bubblePalette.background,
     };
     final bubbleLandscape = landscape && themeId == ClockThemeId.bubble;
+    // 翻页钟横屏时由钟面自管比例（占屏百分比按全屏计算），
+    // 不吃 SafeArea 与水平边距，否则卡片比例会被剥小。
+    final flipLandscape = landscape && themeId == ClockThemeId.flip;
     final chromeActions = _chromeActions(snapshot);
 
     return Scaffold(
@@ -155,12 +158,14 @@ class _ClockPageState extends ConsumerState<ClockPage> {
       body: SafeArea(
         left: !landscape,
         right: !landscape,
-        top: !bubbleLandscape,
+        top: !bubbleLandscape && !flipLandscape,
         bottom: !bubbleLandscape,
         child: Padding(
           key: const ValueKey('clock-safe-content'),
           padding: EdgeInsets.symmetric(
-            horizontal: landscape ? ui.spacingSm + ui.spacingXs : 0,
+            horizontal: landscape && !flipLandscape
+                ? ui.spacingSm + ui.spacingXs
+                : 0,
           ),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
