@@ -27,9 +27,10 @@ class StandardFlipClockFace extends StatelessWidget {
     final gap = cardSize * 0.07;
     final dateSize = cardSize * 0.055;
     final dateGap = cardSize * 0.08;
-    final secSize = cardSize * 0.16;
-    final secOverflow = cardSize * 0.055;
-    final dateColor = Color.lerp(palette.digit, Colors.white, 0.75)!;
+    final secSize = cardSize * 0.17;
+    final secOverflow = cardSize * 0.06;
+    // 日期与数字同色（参考图如此）。
+    final dateColor = palette.digit;
 
     final cards = <Widget>[
       _FlipCard(
@@ -70,7 +71,8 @@ class StandardFlipClockFace extends StatelessWidget {
       label: snapshot.timeLabel,
       child: ExcludeSemantics(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          // 加大留白：整体元素占屏比例比 Tiqlo 原版小（参考图观感）。
+          padding: const EdgeInsets.symmetric(horizontal: 88, vertical: 32),
           child: SizedBox.expand(
             child: FittedBox(
               fit: BoxFit.contain,
@@ -324,15 +326,20 @@ class _FlipCardState extends State<_FlipCard>
                 width: widget.size,
                 height: widget.size,
                 child: Center(
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      color: widget.palette.digit,
-                      fontFamily: _flipFont,
-                      fontSize: widget.size * 0.71,
-                      fontWeight: FontWeight.w600,
-                      height: 0.94,
-                      letterSpacing: -widget.size * 0.012,
+                  // 横向轻压：字形更窄高，接近 Arial Rounded 的比例。
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.diagonal3Values(0.93, 1.0, 1.0),
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        color: widget.palette.digit,
+                        fontFamily: _flipFont,
+                        fontSize: widget.size * 0.71,
+                        fontWeight: FontWeight.w600,
+                        height: 0.94,
+                        letterSpacing: -widget.size * 0.012,
+                      ),
                     ),
                   ),
                 ),

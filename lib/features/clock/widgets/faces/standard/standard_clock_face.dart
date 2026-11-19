@@ -33,7 +33,7 @@ class StandardClockFace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final digitalTheme = digitalThemeId.theme;
-    final flipPalette = _standardPalette(flipPaletteId);
+    final flipPalette = flipPaletteId.palette;
     final session = snapshot.session;
     if (session != null) {
       return StandardSessionFace(session: session, landscape: landscape);
@@ -55,15 +55,4 @@ class StandardClockFace extends StatelessWidget {
       ),
     };
   }
-}
-
-FlipPalette _standardPalette(FlipPaletteId id) {
-  if (id != FlipPaletteId.pureDark) return id.palette;
-  return const FlipPalette(
-    background: Color(0xFF000000),
-    cardTop: Color(0xFF101010),
-    cardBottom: Color(0xFF0B0B0B),
-    digit: Color(0xFFF5F5F5),
-    divider: Color(0xFF000000),
-  );
 }
