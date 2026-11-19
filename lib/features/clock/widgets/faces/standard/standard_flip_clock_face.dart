@@ -6,8 +6,10 @@ import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
 const _flipFont = 'MPLUSRounded1c';
-// Zen Flip Clock 风格：真实翻页钟两段式（旧页翻走露出新页），节奏快。
-const _flipDuration = Duration(milliseconds: 550);
+// Zen Flip Clock 实测（51fps 录屏逐帧）：总时长约 210-250ms；
+// 旧上半 0→180°（90° 后露出纯色背面、投影伸出卡框）；
+// 旧下半随后 0→120° 垂挂（背面朝外）再淡出。
+const _flipDuration = Duration(milliseconds: 250);
 
 class StandardFlipClockFace extends StatelessWidget {
   const StandardFlipClockFace({
@@ -72,16 +74,12 @@ class StandardFlipClockFace extends StatelessWidget {
                           value: snapshot.displaySecond,
                           size: secSize,
                           palette: palette,
-                          // 参考图秒卡整体比主卡深一档（肉眼可辨）。
-                          topColor: Color.lerp(
-                            palette.cardTop,
-                            Colors.black,
-                            0.10,
-                          ),
+                          // 参考图精确取色：秒卡下半 #1A1A1A（主卡下半
+                          // #202020，加深系数 0.1875）；上半与主卡同色。
                           bottomColor: Color.lerp(
                             palette.cardBottom,
                             Colors.black,
-                            0.30,
+                            0.1875,
                           ),
                         ),
                       ),
@@ -197,17 +195,40 @@ class _FlipCardState extends State<_FlipCard>
       builder: (context, _) {
         final raw = _controller.value;
         final flipping = _controller.isAnimating;
-        // Zen 式两段时序：旧上半加速翻起（0~0.5），旧下半减速翻落（0.5~1）。
-        final topPhase = raw < 0.5;
-        final double p = topPhase ? raw / 0.5 : (raw - 0.5) / 0.5;
-        final double eased =
-            topPhase ? p * p : 1 - (1 - p) * (1 - p); // InQuad / OutQuad
-        final angle = eased * (math.pi / 2);
-        final topAngle = math.min(angle, math.pi / 2);
-        final bottomAngle = math.max(-angle, -math.pi / 2);
         final radius = BorderRadius.circular(widget.size * 0.06);
         final width = widget.size;
         final height = widget.size;
+
+        // Zen 式时序（录屏实测）：
+        // 0~0.5 旧上半 0→180°（easeOutQuad；90° 后露出纯色背面，投影可伸出卡框）；
+        // 0.5~0.85 旧下半 0→120°（翻过 90° 背面垂挂）；
+        // 0.85~1.0 垂挂背面淡出。
+        Widget? topFlap;
+        Widget? bottomFlap;
+        double hingeShadow = 0;
+        if (flipping) {
+          if (raw < 0.5) {
+            final p = raw / 0.5;
+            final a = (1 - (1 - p) * (1 - p)) * math.pi;
+            if (a < math.pi * 0.97) {
+              topFlap = _flap(value: _previous, top: true, angle: a);
+            }
+            hingeShadow = 0.45 * math.sin(p * math.pi);
+          } else {
+            final p = (raw - 0.5) / 0.5;
+            final easedP = p < 0.5
+                ? 2 * p * p
+                : 1 - 2 * (1 - p) * (1 - p); // easeInOutQuad
+            final a = easedP * (120 * math.pi / 180);
+            final opacity =
+                p > 0.85 ? 1 - (p - 0.85) / 0.15 : 1.0;
+            bottomFlap = Opacity(
+              opacity: opacity.clamp(0.0, 1.0),
+              child: _flap(value: _previous, top: false, angle: a),
+            );
+          }
+        }
+
         return SizedBox(
           width: width,
           height: height,
@@ -231,7 +252,7 @@ class _FlipCardState extends State<_FlipCard>
                     borderRadius: radius,
                     child: Stack(
                       key: const ValueKey('flip-card-stack'),
-                      clipBehavior: Clip.hardEdge,
+                      fit: StackFit.expand,
                       children: [
                         // 新数字整卡垫底：旧页翻走时逐渐露出。
                         Column(
@@ -241,7 +262,7 @@ class _FlipCardState extends State<_FlipCard>
                           ],
                         ),
                         // 翻起页在中线处的投影（立体感）。
-                        if (flipping && topPhase)
+                        if (hingeShadow > 0)
                           Positioned(
                             top: height / 2 - height * 0.01,
                             left: 0,
@@ -254,33 +275,11 @@ class _FlipCardState extends State<_FlipCard>
                                   end: Alignment.bottomCenter,
                                   colors: [
                                     Colors.black
-                                        .withValues(alpha: 0.45 * eased),
+                                        .withValues(alpha: hingeShadow),
                                     Colors.transparent,
                                   ],
                                 ),
                               ),
-                            ),
-                          ),
-                        if (flipping && topPhase)
-                          Align(
-                            key: const ValueKey('flip-flap'),
-                            alignment: Alignment.topCenter,
-                            child: _flap(
-                              value: _previous,
-                              top: true,
-                              angle: topAngle,
-                              shade: 0.12 + 0.22 * eased,
-                            ),
-                          ),
-                        if (flipping && !topPhase)
-                          Align(
-                            key: const ValueKey('flip-flap'),
-                            alignment: Alignment.bottomCenter,
-                            child: _flap(
-                              value: _previous,
-                              top: false,
-                              angle: bottomAngle,
-                              shade: 0.30 - 0.26 * eased,
                             ),
                           ),
                         if (widget.badge != null)
@@ -306,6 +305,9 @@ class _FlipCardState extends State<_FlipCard>
                   ),
                 ),
               ),
+              // 翻动页在裁剪层之外：3D 投影可伸出卡框（Zen 观感关键）。
+              if (topFlap != null) Align(alignment: Alignment.topCenter, child: topFlap),
+              if (bottomFlap != null) Align(alignment: Alignment.bottomCenter, child: bottomFlap),
             ],
           ),
         );
@@ -335,15 +337,17 @@ class _FlipCardState extends State<_FlipCard>
     required String value,
     required bool top,
     required double angle,
-    required double shade,
   }) {
-    return Transform(
-      alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
-      filterQuality: FilterQuality.medium,
-      transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.0045)
-        ..rotateX(angle),
-      child: ShaderMask(
+    // 超过 90° 后显示页背面（纯色，无数字）——Zen 观感关键。
+    final showBack = math.cos(angle) < 0;
+    final Widget content;
+    if (showBack) {
+      content = _halfBack(top);
+    } else {
+      final shade = top
+          ? 0.10 + 0.16 * (angle / (math.pi / 2))
+          : 0.12;
+      content = ShaderMask(
         shaderCallback: (bounds) => LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -354,6 +358,31 @@ class _FlipCardState extends State<_FlipCard>
         ).createShader(bounds),
         blendMode: BlendMode.srcATop,
         child: _half(value, top: top),
+      );
+    }
+    return Transform(
+      alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
+      filterQuality: FilterQuality.medium,
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.008)
+        ..rotateX(top ? angle : -angle),
+      child: content,
+    );
+  }
+
+  /// 页背面：纯色半页（比卡面略暗），翻过 90° 后可见。
+  Widget _halfBack(bool top) {
+    final base = top ? widget.palette.cardTop : widget.palette.cardBottom;
+    final color = Color.lerp(base, Colors.black, 0.22)!;
+    final radius = Radius.circular(widget.size * 0.06);
+    return Container(
+      width: widget.size,
+      height: widget.size / 2,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: top
+            ? BorderRadius.vertical(top: radius)
+            : BorderRadius.vertical(bottom: radius),
       ),
     );
   }
