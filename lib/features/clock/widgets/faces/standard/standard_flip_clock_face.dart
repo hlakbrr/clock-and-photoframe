@@ -6,7 +6,8 @@ import '../../../../../clock/clock_engine.dart';
 import '../../../../../clock/flip_palette.dart';
 
 const _flipFont = 'MPLUSRounded1c';
-const _flipDuration = Duration(milliseconds: 1000);
+// Zen Flip Clock 风格：真实翻页钟两段式（旧页翻走露出新页），节奏快。
+const _flipDuration = Duration(milliseconds: 550);
 
 class StandardFlipClockFace extends StatelessWidget {
   const StandardFlipClockFace({
@@ -71,6 +72,12 @@ class StandardFlipClockFace extends StatelessWidget {
                           value: snapshot.displaySecond,
                           size: secSize,
                           palette: palette,
+                          // 参考图秒卡下半比主卡深一档。
+                          bottomColor: Color.lerp(
+                            palette.cardBottom,
+                            Colors.black,
+                            0.18,
+                          ),
                         ),
                       ),
                   ],
@@ -122,12 +129,16 @@ class _FlipCard extends StatefulWidget {
     required this.size,
     required this.palette,
     this.badge,
+    this.topColor,
+    this.bottomColor,
   });
 
   final String value;
   final double size;
   final FlipPalette palette;
   final String? badge;
+  final Color? topColor;
+  final Color? bottomColor;
 
   @override
   State<_FlipCard> createState() => _FlipCardState();
@@ -181,10 +192,14 @@ class _FlipCardState extends State<_FlipCard>
       builder: (context, _) {
         final raw = _controller.value;
         final flipping = _controller.isAnimating;
-        final eased = (1 - math.cos(math.pi * raw)) / 2;
-        final topPhase = eased < 0.5;
-        final topAngle = math.min(eased * math.pi, math.pi / 2);
-        final bottomAngle = math.max(eased * math.pi - math.pi, -math.pi / 2);
+        // Zen 式两段时序：旧上半加速翻起（0~0.5），旧下半减速翻落（0.5~1）。
+        final topPhase = raw < 0.5;
+        final double p = topPhase ? raw / 0.5 : (raw - 0.5) / 0.5;
+        final double eased =
+            topPhase ? p * p : 1 - (1 - p) * (1 - p); // InQuad / OutQuad
+        final angle = eased * (math.pi / 2);
+        final topAngle = math.min(angle, math.pi / 2);
+        final bottomAngle = math.max(-angle, -math.pi / 2);
         final radius = BorderRadius.circular(widget.size * 0.06);
         final width = widget.size;
         final height = widget.size;
@@ -213,13 +228,11 @@ class _FlipCardState extends State<_FlipCard>
                       key: const ValueKey('flip-card-stack'),
                       clipBehavior: Clip.hardEdge,
                       children: [
+                        // 新数字整卡垫底：旧页翻走时逐渐露出。
                         Column(
                           children: [
                             _half(_current, top: true),
-                            _half(
-                              flipping ? _previous : _current,
-                              top: false,
-                            ),
+                            _half(_current, top: false),
                           ],
                         ),
                         if (flipping && topPhase)
@@ -237,7 +250,7 @@ class _FlipCardState extends State<_FlipCard>
                             key: const ValueKey('flip-flap'),
                             alignment: Alignment.bottomCenter,
                             child: _flap(
-                              value: _current,
+                              value: _previous,
                               top: false,
                               angle: bottomAngle,
                             ),
@@ -312,7 +325,9 @@ class _FlipCardState extends State<_FlipCard>
       width: widget.size,
       height: widget.size / 2,
       decoration: BoxDecoration(
-        color: top ? widget.palette.cardTop : widget.palette.cardBottom,
+        color: top
+            ? (widget.topColor ?? widget.palette.cardTop)
+            : (widget.bottomColor ?? widget.palette.cardBottom),
         borderRadius: top
             ? BorderRadius.vertical(top: radius)
             : BorderRadius.vertical(bottom: radius),
