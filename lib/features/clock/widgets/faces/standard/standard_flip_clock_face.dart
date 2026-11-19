@@ -72,11 +72,16 @@ class StandardFlipClockFace extends StatelessWidget {
                           value: snapshot.displaySecond,
                           size: secSize,
                           palette: palette,
-                          // 参考图秒卡下半比主卡深一档。
+                          // 参考图秒卡整体比主卡深一档（肉眼可辨）。
+                          topColor: Color.lerp(
+                            palette.cardTop,
+                            Colors.black,
+                            0.10,
+                          ),
                           bottomColor: Color.lerp(
                             palette.cardBottom,
                             Colors.black,
-                            0.18,
+                            0.30,
                           ),
                         ),
                       ),
@@ -235,6 +240,27 @@ class _FlipCardState extends State<_FlipCard>
                             _half(_current, top: false),
                           ],
                         ),
+                        // 翻起页在中线处的投影（立体感）。
+                        if (flipping && topPhase)
+                          Positioned(
+                            top: height / 2 - height * 0.01,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: height * 0.06,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black
+                                        .withValues(alpha: 0.45 * eased),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         if (flipping && topPhase)
                           Align(
                             key: const ValueKey('flip-flap'),
@@ -243,6 +269,7 @@ class _FlipCardState extends State<_FlipCard>
                               value: _previous,
                               top: true,
                               angle: topAngle,
+                              shade: 0.12 + 0.22 * eased,
                             ),
                           ),
                         if (flipping && !topPhase)
@@ -253,6 +280,7 @@ class _FlipCardState extends State<_FlipCard>
                               value: _previous,
                               top: false,
                               angle: bottomAngle,
+                              shade: 0.30 - 0.26 * eased,
                             ),
                           ),
                         if (widget.badge != null)
@@ -307,14 +335,26 @@ class _FlipCardState extends State<_FlipCard>
     required String value,
     required bool top,
     required double angle,
+    required double shade,
   }) {
     return Transform(
       alignment: top ? Alignment.bottomCenter : Alignment.topCenter,
       filterQuality: FilterQuality.medium,
       transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.0028)
+        ..setEntry(3, 2, 0.0045)
         ..rotateX(angle),
-      child: _half(value, top: top),
+      child: ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.black.withValues(alpha: shade),
+            Colors.black.withValues(alpha: shade * 0.3),
+          ],
+        ).createShader(bounds),
+        blendMode: BlendMode.srcATop,
+        child: _half(value, top: top),
+      ),
     );
   }
 
